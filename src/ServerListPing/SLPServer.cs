@@ -50,14 +50,14 @@ namespace StatusServer.ServerListPing
 
         private async Task Listen()
         {
-            while (true)
-            {
-                try {
+            try { 
+                while (true)
+                {
                     var client = await _listener.AcceptTcpClientAsync();
                     var stream = client.GetStream();
 
                     var reader = new BinaryReader(stream);
-                    
+
                     // Handshake: https://wiki.vg/Protocol#Handshake
                     /* Packet length */ var length = reader.Read7BitEncodedInt();
                     if (length == 0xFE) // Legacy
@@ -73,19 +73,19 @@ namespace StatusServer.ServerListPing
                     /* Host */          reader.ReadString();
                     /* Port */          reader.ReadUInt16();
                     var state = reader.Read7BitEncodedInt();
-                    
+
                     if (state != 1) continue; // Login (ignore)
 
                     HandlePacket(stream);
-                    
+
                     // Follow-on ping (optional)
                     HandlePacket(stream);
                     client.Close();
                 }
-                catch (TargetInvocationException) { }
-                catch (IOException) { }
-                catch (SocketException) { }
             }
+            catch (TargetInvocationException) { }
+            catch (IOException) { }
+            catch (SocketException) { }
         }
         
         /// <summary>
